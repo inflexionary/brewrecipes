@@ -93,6 +93,13 @@ body { font-family: 'Lora', Georgia, serif; background: var(--bg); color: var(--
 .note-block:last-child { margin-bottom: 0; }
 .note-block b { color: var(--text); }
 
+.checkpoints { display: flex; align-items: stretch; background: var(--white); border-bottom: 1px solid var(--border); }
+.cp-item { padding: 0.75rem 1rem; text-align: center; border-right: 1px solid var(--border); flex-shrink: 0; }
+.cp-note { flex: 1; padding: 0.75rem 1rem; border-right: none; display: flex; align-items: center; }
+.cp-val { font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--amber); }
+.cp-lbl { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 0.2rem; }
+.cp-note-text { font-size: 0.78rem; color: var(--muted); font-style: italic; line-height: 1.5; }
+
 @media (min-width: 720px) {
   body { max-width: 960px; font-size: 18px; }
   .hdr-title { font-size: 1.6rem; }
@@ -114,7 +121,8 @@ body { font-family: 'Lora', Georgia, serif; background: var(--bg); color: var(--
   .sec { padding: 1.5rem 1.75rem; }
   .hero { padding: 1.5rem 1.75rem; }
   .step { padding: 1rem 0.75rem; }
-  #scVolDisplay { font-size: 1.4rem; }
+  .cp-val { font-size: 1.25rem; }
+  .cp-note-text { font-size: 0.88rem; }
   .sc-btn { width: 40px; height: 40px; font-size: 1.4rem; }
   .cube-hint { font-size: 0.82rem; }
 }
@@ -147,6 +155,19 @@ body { font-family: 'Lora', Georgia, serif; background: var(--bg); color: var(--
     <div class="hero-desc" id="dDesc"></div>
   </div>
   <div class="vitals" id="dVitals"></div>
+  <div class="checkpoints">
+    <div class="cp-item">
+      <div class="cp-val" id="cpPreboil">—</div>
+      <div class="cp-lbl">Pre-boil SG</div>
+    </div>
+    <div class="cp-item">
+      <div class="cp-val" id="cpOg">—</div>
+      <div class="cp-lbl">OG into cube</div>
+    </div>
+    <div class="cp-note">
+      <div class="cp-note-text">Refractometer reads Brix — divide your reading by 4 to get approximate points, e.g. 11.6°Bx ≈ 1.047. After fermentation starts, alcohol distorts readings and a correction calculator is needed</div>
+    </div>
+  </div>
   <div class="scaler">
     <div class="scaler-top">
       <span class="scaler-lbl">Fermenter volume</span>
@@ -170,7 +191,7 @@ body { font-family: 'Lora', Georgia, serif; background: var(--bg); color: var(--
 // Nectaron AA estimated ~11%
 
 var DATA = [
-  { id:'oatmeal-stout', name:'Oatmeal Stout', yeast:'S-04', style:'Stout', dot:'#5c2000',
+  { id:'oatmeal-stout', name:'Oatmeal Stout', yeast:'S-04 / Nottingham / Velo', style:'Stout', dot:'#5c2000',
     desc:'Smooth and creamy with roast and chocolate character. Single 60 min Magnum addition — no late hops needed. No-chill cube.',
     vitals:{og:'1.047',fg:'1.012',abv:'4.6%',ibu:'36',ebc:'70'}, base:22,
     // 22g Magnum @ 13.4% AA, util 0.27, 22L = 36 IBU
@@ -182,9 +203,11 @@ var DATA = [
         {n:'Chocolate Malt (750 EBC)',a:200,u:'g',p:'mash'}
       ]},
       {group:'Hops',items:[
-        {n:'Magnum 13.4% AA — 60 min boil',a:22,u:'g',p:'boil'}
+        {n:'Magnum 13.4% AA — 60 min boil',a:22,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'}
       ]},
-      {group:'Yeast',items:[{n:'S-04 dry yeast',a:1,u:'pkt',p:'ferm'}]},
+    // Oatmeal Stout
+      {group:'Yeast',items:[{n:'S-04 / Nottingham / Velo — any clean dry yeast',a:1,u:'pkt',p:'ferm'}]},
       {group:'Water Chemistry',items:[
         {n:'Campden tablet (crushed)',a:0.25,u:'tab',p:'water'},
         {n:'Calcium chloride CaCl2',a:4.5,u:'g',p:'water'},
@@ -206,7 +229,8 @@ var DATA = [
         {t:'Sparge slowly with ~8.5L at 75C',b:'Rolled oats compact the grain bed — go slowly. Target pre-boil volume appropriate to your cube size.'}
       ]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (22g)',b:'Bring to a full rolling boil. At 60 minutes remaining add Magnum. Only boil hop addition — ~36 IBU. No late hops.'},
+        {t:'60 min — Magnum',b:'Bring to a full rolling boil. At 60 minutes remaining add Magnum. Only boil hop addition. No late hops.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:'Turn off heat and pump directly to cube without delay. No hopstand needed.'}
       ]},
       {name:'Cube / No-Chill',p:'',steps:[
@@ -214,7 +238,7 @@ var DATA = [
         {t:'Cool to ambient temperature',b:'Allow to cool fully before pitching — typically overnight. Can be left for several days if sealed.'}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
-        {t:'Transfer to fermenter at 19-20C',b:'Chill wort to 19-20C before transferring. Rehydrate S-04 in 10x its weight of water at 35C for 15 min. Cool to within 10C of wort temp, then pitch. Aerate well before sealing. Ferment at atmospheric pressure — no spunding valve needed.'},
+        {t:'Transfer to fermenter at 19-20C',b:'Chill wort to 19-20C before transferring. Pitch whichever clean dry yeast you have — S-04, Nottingham, and Velo all work well here. Rehydrate according to packet instructions. Aerate well before sealing. Set spunding valve to 0 PSI — this allows CO2 to vent freely and gives atmospheric fermentation. Do not set pressure for ale styles.'},
         {t:'Ferment at 19-20C for 10-14 days',b:'Hold at a steady 19-20C throughout. Confirm completion with two stable gravity readings 48 hours apart. Target FG: 1.010-1.014.'}
       ]},
       {name:'Conditioning and Packaging',p:'',steps:[
@@ -223,7 +247,7 @@ var DATA = [
         {t:'Transfer and carbonate to 2.3-2.5 vol',b:''}
       ]}
     ],
-    notes:[{b:'Bicarb is non-negotiable.',t:' Roast malts drag mash pH to ~4.8 without it, giving thin harsh astringent dark flavours.'},{b:'No cube hops.',t:' Dark malts carry all the flavour this beer needs. Late hops on a cube just add uncontrolled bitterness.'}]
+    notes:[{b:'Bicarb is non-negotiable.',t:' Roast malts drag mash pH to ~4.8 without it, giving thin harsh astringent dark flavours.'},{b:'Yeast flexibility:',t:' S-04, Nottingham, and Velo all work well — this is a grain-driven beer and any clean dry yeast does the job. London Fog adds stone fruit complexity if you want more character.'},{b:'No cube hops.',t:' Dark malts carry all the flavour this beer needs.'}]
   },
 
   { id:'hazy-pa', name:'Hazy Pale Ale', yeast:'Jungle', style:'Hazy Pale Ale', dot:'#8a6a00',
@@ -237,12 +261,13 @@ var DATA = [
       ]},
       {group:'Hops',items:[
         {n:'Magnum 13.4% AA — 60 min boil',a:10,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'},
         {n:'Nectaron ~11% AA — dry hop',a:75,u:'g',p:'ferm'},
         {n:'Mandarina Bavaria 9.1% AA — dry hop',a:55,u:'g',p:'ferm'}
       ]},
       {group:'Yeast and Enzymes',items:[
         {n:'Jungle yeast (CellarScience)',a:1,u:'pkt',p:'ferm'},
-        {n:'Aromazyme',a:0.75,u:'ml',p:'ferm'}
+        {n:'Aromazyme (powder)',a:1,u:'g',p:'ferm'}
       ]},
       {group:'Water Chemistry',items:[
         {n:'Campden tablet (crushed)',a:0.25,u:'tab',p:'water'},
@@ -254,7 +279,7 @@ var DATA = [
     phases:[
       {name:'Water Prep',p:'water',steps:[
         {t:'Neutralise chloramines',b:'Crush a Campden tablet and dissolve into your full water volume.'},
-        {t:'Add water minerals',b:'Dissolve CaCl2 (7g) and gypsum (1.5g) into mash water. Add lactic acid and stir. High chloride is the most important thing for soft juicy mouthfeel. Target mash pH 5.3-5.5.'}
+        {t:'Add water minerals',b:'Dissolve CaCl2 and gypsum into mash water. Add lactic acid and stir. High chloride is the most important thing for soft juicy mouthfeel. Target mash pH 5.3-5.5.'}
       ]},
       {name:'Mash',p:'mash',steps:[
         {t:'Beta-glucanase rest at 40C',b:'Heat mash water to 40C, add all grain including oats. Hold at 38-42C for 15 minutes.'},
@@ -265,7 +290,8 @@ var DATA = [
         {t:'Sparge slowly',b:'Target pre-boil volume appropriate to your cube size.'}
       ]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (10g)',b:'At 60 minutes remaining, add Magnum. Low bittering only — ~16 IBU. No further boil additions.'},
+        {t:'60 min — Magnum',b:'At 60 minutes remaining, add Magnum. Low bittering only. No further boil additions.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:'No cube hops for this recipe. Nectaron and Mandarina Bavaria at ~10-11% AA are too high to cube hop predictably — the dry hop handles all the aroma work.'}
       ]},
       {name:'Cube / No-Chill',p:'',steps:[
@@ -273,7 +299,7 @@ var DATA = [
         {t:'Cool to ambient temperature',b:'Allow to cool fully before pitching.'}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
-        {t:'Transfer to fermenter at 20-22C',b:'Chill wort to 20-22C before transferring. Pitch Jungle yeast at 20-22C. Aerate well before sealing. Ferment at atmospheric pressure — no spunding valve needed.'},
+        {t:'Transfer to fermenter at 20-22C',b:'Chill wort to 20-22C before transferring. Pitch Jungle yeast at 20-22C. Aerate well before sealing. Set spunding valve to 0 PSI — this allows CO2 to vent freely and gives atmospheric fermentation. Do not set pressure for ale styles.'},
         {t:'Ferment at 20-22C',b:'The higher end of this range (22C) maximises tropical ester character from the Jungle yeast. Hold temperature steady.'},
         {t:'Dry hop + Aromazyme at 20-22C — when ~4-6 pts above FG',b:'When gravity is approximately 4-6 points above FG (typically day 3-4), add Nectaron, Mandarina Bavaria, and Aromazyme directly to fermenter. Keep at fermentation temperature 20-22C throughout dry hop contact — warmth assists biotransformation which softens and blends hop character into the beer. Maximum contact time 5 days.'},
         {t:'Allow fermentation to finish at 20-22C',b:'Target FG: 1.010-1.014.'}
@@ -299,13 +325,14 @@ var DATA = [
       ]},
       {group:'Hops',items:[
         {n:'Magnum 13.4% AA — 60 min boil',a:14,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'},
         {n:'Amarillo 7.3% AA — cube hop',a:30,u:'g',p:'cube'},
         {n:'Amarillo 7.3% AA — dry hop',a:50,u:'g',p:'ferm'},
         {n:'Citra Cryo 22.5% AA — dry hop only',a:30,u:'g',p:'ferm'}
       ]},
       {group:'Yeast and Enzymes',items:[
         {n:'Velo yeast (CellarScience)',a:1,u:'pkt',p:'ferm'},
-        {n:'Aromazyme',a:0.75,u:'ml',p:'ferm'}
+        {n:'Aromazyme (powder)',a:1,u:'g',p:'ferm'}
       ]},
       {group:'Water Chemistry',items:[
         {n:'Campden tablet (crushed)',a:0.25,u:'tab',p:'water'},
@@ -317,7 +344,7 @@ var DATA = [
     phases:[
       {name:'Water Prep',p:'water',steps:[
         {t:'Neutralise chloramines',b:'Crush a Campden tablet and dissolve into your full water volume.'},
-        {t:'Add water minerals',b:'Dissolve gypsum (6g) and CaCl2 (1.5g) into mash water. Add lactic acid. High sulfate drives the dry assertive bitterness that defines this style. SO4:Cl ratio ~3:1. Target mash pH 5.2-5.4.'}
+        {t:'Add water minerals',b:'Dissolve gypsum and CaCl2 into mash water. Add lactic acid. High sulfate drives the dry assertive bitterness that defines this style. SO4:Cl ratio ~3:1. Target mash pH 5.2-5.4.'}
       ]},
       {name:'Mash',p:'mash',steps:[
         {t:'Mash at 65C for 60 min',b:'Lower mash temp gives a drier, crisper finish.'},
@@ -327,18 +354,19 @@ var DATA = [
         {t:'Sparge',b:'Target pre-boil volume appropriate to your cube size.'}
       ]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (14g)',b:'At 60 minutes remaining, add Magnum — ~23 IBU. No further boil additions.'},
+        {t:'60 min — Magnum',b:'At 60 minutes remaining, add Magnum. No further boil additions.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:''}
       ]},
       {name:'Cube / No-Chill',p:'cube',steps:[
-        {t:'Add Amarillo and seal',b:'As you fill the cube, add Amarillo (30g). Seal tightly with no headspace. Amarillo at 7.3% AA is suitable for cube hopping — it contributes ~15 IBU and good orange/floral character as the wort cools. Total IBU with Magnum: ~38. Citra Cryo stays out of the cube entirely — at 22.5% AA it would add uncontrolled bitterness.'},
+        {t:'Add Amarillo cube hop and seal',b:'As you fill the cube, add the Amarillo cube hop amount. Seal tightly with no headspace. Amarillo at 7.3% AA is well suited to cube hopping — moderate, predictable bitterness contribution with good orange and floral character as the wort cools. Citra Cryo stays out of the cube entirely — at 22.5% AA it would add uncontrolled bitterness.'},
         {t:'Cool to ambient temperature',b:'Allow to cool fully before pitching.'}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
-        {t:'Transfer to fermenter at 18-20C',b:'Chill wort to 18-20C before transferring. Pitch Velo at 18-20C. Aerate well before sealing. Ferment at atmospheric pressure — no spunding valve needed.'},
+        {t:'Transfer to fermenter at 18-20C',b:'Chill wort to 18-20C before transferring. Pitch Velo at 18-20C. Aerate well before sealing. Set spunding valve to 0 PSI — this allows CO2 to vent freely and gives atmospheric fermentation. Do not set pressure for ale styles.'},
         {t:'Ferment at 18-20C until gravity stable',b:'Velo is clean and fast — primary done in 7-10 days. Confirm with two stable gravity readings. Target FG: 1.009.'},
         {t:'Cold crash to 2-4C for 48 hours before dry hopping',b:'Crash the beer cold before adding dry hops. Cold side dry hopping is the key to avoiding tannins — at 2-4C hop cell walls are far less permeable and release significantly fewer tannins than warm dry hopping.'},
-        {t:'Cold dry hop + Aromazyme at 2-4C — 2-3 days',b:'Once fully cold crashed at 2-4C, add Amarillo (50g), Citra Cryo (30g), and Aromazyme directly to the cold fermenter. Keep at 2-4C throughout. Cold dry hopping gives the sharp, defined citrus and orange aroma this style needs. 2-3 days at cold temperature is sufficient — do not extend beyond 4 days.'}
+        {t:'Cold dry hop + Aromazyme at 2-4C — 2-3 days',b:'Once fully cold crashed at 2-4C, add the Amarillo dry hop, Citra Cryo, and Aromazyme directly to the cold fermenter. Keep at 2-4C throughout. Cold dry hopping gives the sharp defined citrus and orange aroma this style needs. 2-3 days at cold temperature is sufficient — do not extend beyond 4 days.'}
       ]},
       {name:'Conditioning and Packaging',p:'',steps:[
         {t:'Cold crash to 2-4C for 48-72 hours',b:''},
@@ -349,8 +377,8 @@ var DATA = [
     notes:[{b:'Citra Cryo (22.5% AA) — dry hop only.',t:' Never add Cryo hops to a cube. The concentrated alpha acids would over-bitter the beer unpredictably. In the dry hop it works perfectly — almost no isomerisation at cold temperatures.'},{b:'Amarillo cube hop:',t:' At 7.3% AA, Amarillo is one of the safer hops for cube use — the bitterness contribution is moderate and predictable.'}]
   },
 
-  { id:'porter', name:'Porter', yeast:'S-04', style:'Porter', dot:'#2a1000',
-    desc:'Rich, smooth and full-bodied. Chocolate malt forward with soft roast. Bicarbonate water essential. Single 60 min Magnum — no late hops.',
+  { id:'porter', name:'Chocolate Stout', yeast:'London Fog', style:'Stout', dot:'#2a1000',
+    desc:'Rich and full-bodied with a smooth chocolate and coffee character. Chocolate malt leads over roast barley giving softness rather than dry bite. Bicarbonate water essential for dark malt pH.',
     vitals:{og:'1.050',fg:'1.012',abv:'5.0%',ibu:'30',ebc:'55'}, base:22,
     // 18g Magnum @ 13.4%, util 0.27, 22L = 29.6 IBU ≈ 30
     ingredients:[
@@ -360,8 +388,9 @@ var DATA = [
         {n:'Crystal Malt (~120 EBC)',a:250,u:'g',p:'mash'},
         {n:'Roast Barley (1200 EBC)',a:150,u:'g',p:'mash'}
       ]},
-      {group:'Hops',items:[{n:'Magnum 13.4% AA — 60 min boil',a:18,u:'g',p:'boil'}]},
-      {group:'Yeast',items:[{n:'S-04 dry yeast',a:1,u:'pkt',p:'ferm'}]},
+      {group:'Hops',items:[{n:'Magnum 13.4% AA — 60 min boil',a:18,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'}]},
+      {group:'Yeast',items:[{n:'London Fog (preferred) or S-04 / Nottingham / Velo',a:1,u:'pkt',p:'ferm'}]},
       {group:'Water Chemistry',items:[
         {n:'Campden tablet (crushed)',a:0.25,u:'tab',p:'water'},
         {n:'Bicarbonate of soda NaHCO3',a:4,u:'g',p:'water'},
@@ -372,7 +401,7 @@ var DATA = [
     phases:[
       {name:'Water Prep',p:'water',steps:[
         {t:'Neutralise chloramines',b:'Crush a Campden tablet and dissolve into your full water volume.'},
-        {t:'Add water minerals',b:'Dissolve bicarb (4g), CaCl2 (2.5g), and gypsum (1.5g) into mash water. Bicarb buffers against acidity of dark malts. Target mash pH 5.3-5.5.'}
+        {t:'Add water minerals',b:'Dissolve bicarb, CaCl2, and gypsum into mash water. Bicarb buffers against acidity of dark malts. Target mash pH 5.3-5.5.'}
       ]},
       {name:'Mash',p:'mash',steps:[
         {t:'Mash at 67-68C for 60 min',b:'Higher mash temp builds body which suits a porter.'},
@@ -380,7 +409,8 @@ var DATA = [
       ]},
       {name:'Sparge',p:'',steps:[{t:'Sparge',b:'Target pre-boil volume appropriate to your cube size.'}]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (18g)',b:'At 60 minutes remaining, add Magnum — ~30 IBU. No further boil additions.'},
+        {t:'60 min — Magnum',b:'At 60 minutes remaining, add Magnum. No further boil additions.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:''}
       ]},
       {name:'Cube / No-Chill',p:'',steps:[
@@ -388,7 +418,7 @@ var DATA = [
         {t:'Cool to ambient temperature',b:''}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
-        {t:'Transfer to fermenter at 19-20C',b:'Chill wort to 19-20C before transferring. Rehydrate S-04 in 10x weight of water at 35C for 15 min. Aerate well before sealing. Ferment at atmospheric pressure — no spunding valve needed.'},
+        {t:'Transfer to fermenter at 19-20C',b:'Chill wort to 19-20C before transferring. London Fog is the preferred yeast here — its stone fruit and dark fruit esters work beautifully with the chocolate malt. S-04, Nottingham, or Velo also work if that is what you have. Rehydrate according to packet instructions. Aerate well before sealing. Set spunding valve to 0 PSI — this allows CO2 to vent freely and gives atmospheric fermentation. Do not set pressure for ale styles.'},
         {t:'Ferment at 19-20C for 10-14 days',b:'Target FG: 1.010-1.014.'}
       ]},
       {name:'Conditioning and Packaging',p:'',steps:[
@@ -397,7 +427,7 @@ var DATA = [
         {t:'Transfer and carbonate to 2.2-2.4 vol',b:'Lower than pale ales — high carbonation sharpens roast.'}
       ]}
     ],
-    notes:[{b:'Bicarb is not optional.',t:' Without it, roast malts drag mash pH to ~4.8-5.0, producing thin astringent harsh dark flavours.'},{b:'No cube hops.',t:' Same as the stout — dark malts carry everything.'}]
+    notes:[{b:'Bicarb is not optional.',t:' Without it, roast malts drag mash pH to ~4.8-5.0, producing thin astringent harsh dark flavours.'},{b:'London Fog is the preferred yeast.',t:' Its stone fruit and dark fruit esters pair naturally with chocolate malt. S-04, Nottingham, or Velo work fine if that is what you have — this is a grain-driven beer.'},{b:'No cube hops.',t:' Dark malts carry everything.'}]
   },
 
   { id:'helles', name:'Munich Helles', yeast:'CS German', style:'Lager', dot:'#006030',
@@ -412,6 +442,7 @@ var DATA = [
       ]},
       {group:'Hops',items:[
         {n:'Magnum 13.4% AA — 60 min boil',a:10,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'},
         {n:'Saaz 3.5% AA — cube hop',a:25,u:'g',p:'cube'}
       ]},
       {group:'Yeast',items:[{n:'CellarScience German lager yeast',a:1,u:'pkt',p:'ferm'}]},
@@ -424,7 +455,7 @@ var DATA = [
     phases:[
       {name:'Water Prep',p:'water',steps:[
         {t:'Neutralise chloramines',b:'Crush a Campden tablet and dissolve into your full water volume.'},
-        {t:'Add water minerals',b:'Dissolve CaCl2 (2.5g) and gypsum (0.75g) into mash water. Keep additions light — Sydney water is already close to ideal for lager. Target mash pH 5.2-5.4.'}
+        {t:'Add water minerals',b:'Dissolve CaCl2 and gypsum into mash water. Keep additions light — Sydney water is already close to ideal for lager. Target mash pH 5.2-5.4.'}
       ]},
       {name:'Mash',p:'mash',steps:[
         {t:'Mash at 65C for 60 min',b:'Lower mash temp gives a drier, crisper finish.'},
@@ -432,11 +463,12 @@ var DATA = [
       ]},
       {name:'Sparge',p:'',steps:[{t:'Sparge',b:'Target pre-boil volume appropriate to your cube size.'}]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (10g)',b:'At 60 minutes remaining, add Magnum — ~16 IBU. No further boil additions.'},
+        {t:'60 min — Magnum',b:'At 60 minutes remaining, add Magnum. No further boil additions.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:''}
       ]},
       {name:'Cube / No-Chill',p:'cube',steps:[
-        {t:'Add Saaz and seal',b:'As you fill the cube, add Saaz (25g). Seal completely with no headspace. Saaz at 3.5% AA is ideal for cube hopping — very controlled bitterness contribution (~6 IBU) with good noble hop character as the wort cools through the aroma range. Total IBU: ~22.'},
+        {t:'Add Saaz cube hop and seal',b:'As you fill the cube, add the Saaz cube hop amount. Seal completely with no headspace. Saaz at 3.5% AA is ideal for cube hopping — very predictable, controlled bitterness with good noble hop character as the wort cools.'},
         {t:'Cool to ambient temperature',b:''}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
@@ -466,11 +498,12 @@ var DATA = [
       ]},
       {group:'Hops',items:[
         {n:'Magnum 13.4% AA — 60 min boil',a:8,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'},
         {n:'Saaz 3.5% AA — cube hop',a:20,u:'g',p:'cube'}
       ]},
       {group:'Yeast and Enzymes',items:[
         {n:'CellarScience Baja lager yeast',a:1,u:'pkt',p:'ferm'},
-        {n:'Alpha amylase enzyme',a:1,u:'ml',p:'mash'}
+        {n:'Alpha amylase enzyme (powder)',a:1,u:'g',p:'mash'}
       ]},
       {group:'Water Chemistry',items:[
         {n:'Campden tablet (crushed)',a:0.25,u:'tab',p:'water'},
@@ -481,7 +514,7 @@ var DATA = [
     phases:[
       {name:'Water Prep',p:'water',steps:[
         {t:'Neutralise chloramines',b:'Crush a Campden tablet and dissolve into your full water volume.'},
-        {t:'Add water minerals',b:'Dissolve CaCl2 (2.5g) and gypsum (0.75g) into mash water. Minimal additions — delicate character is the point.'}
+        {t:'Add water minerals',b:'Dissolve CaCl2 and gypsum into mash water. Minimal additions — delicate character is the point.'}
       ]},
       {name:'Mash',p:'mash',steps:[
         {t:'Mash at 65C with alpha amylase — 60 min',b:'Add alpha amylase enzyme at the start of the mash and stir in well. Required for full starch conversion of the rice.'},
@@ -489,11 +522,12 @@ var DATA = [
       ]},
       {name:'Sparge',p:'',steps:[{t:'Sparge slowly',b:'Rice flakes can compact the grain bed — go slowly. Target pre-boil volume appropriate to your cube size.'}]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (8g)',b:'At 60 minutes remaining, add Magnum — ~13 IBU. No further boil additions.'},
+        {t:'60 min — Magnum',b:'At 60 minutes remaining, add Magnum. No further boil additions.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:''}
       ]},
       {name:'Cube / No-Chill',p:'cube',steps:[
-        {t:'Add Saaz and seal',b:'As you fill the cube, add Saaz (20g). Seal completely with no headspace. Saaz adds subtle noble hop character — keep it light for this style. Total IBU with Magnum: ~17.'},
+        {t:'Add Saaz cube hop and seal',b:'As you fill the cube, add the Saaz cube hop amount. Seal completely with no headspace. Saaz adds subtle noble hop character — keep it light for this style.'},
         {t:'Cool to ambient temperature',b:''}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
@@ -525,6 +559,7 @@ var DATA = [
       ]},
       {group:'Hops',items:[
         {n:'Magnum 13.4% AA — 60 min boil',a:10,u:'g',p:'boil'},
+        {n:'Whirlfloc tablet — 10-15 min',a:0.5,u:'tab',p:'boil'},
         {n:'Saaz 3.5% AA — cube hop',a:25,u:'g',p:'cube'}
       ]},
       {group:'Yeast',items:[{n:'Monk yeast (CellarScience)',a:1,u:'pkt',p:'ferm'}]},
@@ -538,7 +573,7 @@ var DATA = [
     phases:[
       {name:'Water Prep',p:'water',steps:[
         {t:'Neutralise chloramines',b:'Crush a Campden tablet and dissolve into your full water volume.'},
-        {t:'Add water minerals',b:'Dissolve CaCl2 (3g) and gypsum (2g) into mash water. Add lactic acid. Balanced water — neither sulfate nor chloride dominant. Target mash pH 5.3-5.5.'}
+        {t:'Add water minerals',b:'Dissolve CaCl2 and gypsum into mash water. Add lactic acid. Balanced water — neither sulfate nor chloride dominant. Target mash pH 5.3-5.5.'}
       ]},
       {name:'Mash',p:'mash',steps:[
         {t:'Mash at 67C for 60 min',b:'Slightly higher mash temp preserves body which suits Belgian ales.'},
@@ -546,15 +581,16 @@ var DATA = [
       ]},
       {name:'Sparge',p:'',steps:[{t:'Sparge',b:'Target pre-boil volume appropriate to your cube size.'}]},
       {name:'Boil',p:'boil',steps:[
-        {t:'60 min — Magnum (10g)',b:'At 60 minutes remaining, add Magnum — ~16 IBU. No further boil additions.'},
+        {t:'60 min — Magnum',b:'At 60 minutes remaining, add Magnum. No further boil additions.'},
+        {t:'10-15 min — Whirlfloc',b:'Add Whirlfloc at 10-15 minutes remaining. Aids protein coagulation and hot break formation — clearer wort into the cube and a cleaner finished beer.'},
         {t:'Flameout — pump to cube immediately',b:''}
       ]},
       {name:'Cube / No-Chill',p:'cube',steps:[
-        {t:'Add Saaz and seal',b:'As you fill the cube, add Saaz (25g). Seal completely with no headspace. Saaz at 3.5% AA adds a soft herbal/floral note that complements the Monk yeast character without competing with it. Total IBU: ~22.'},
+        {t:'Add Saaz cube hop and seal',b:'As you fill the cube, add the Saaz cube hop amount. Seal completely with no headspace. Saaz at 3.5% AA adds a soft herbal/floral note that complements the Monk yeast character without competing with it.'},
         {t:'Cool to ambient temperature',b:''}
       ]},
       {name:'Fermentation',p:'ferm',steps:[
-        {t:'Transfer to fermenter at 20C',b:'Chill wort to 20C before transferring. Aerate very well — Belgian yeasts need thorough oxygenation. Shake or swirl vigorously before sealing. Ferment at atmospheric pressure — no spunding valve needed.'},
+        {t:'Transfer to fermenter at 20C',b:'Chill wort to 20C before transferring. Aerate very well — Belgian yeasts need thorough oxygenation. Shake or swirl vigorously before sealing. Set spunding valve to 0 PSI — this allows CO2 to vent freely and gives atmospheric fermentation. Do not set pressure for ale styles.'},
         {t:'Pitch Monk yeast at 20C',b:''},
         {t:'Start at 20C — allow to rise naturally to 22-23C on days 2-3',b:'Begin fermentation at 20C. As fermentation peaks on days 2-3, allow temperature to rise naturally to 22-23C. Do not force it hot from the start. This natural ramp develops ester and phenol complexity without harsh fusels.'},
         {t:'Ferment for 14-18 days — do not rush',b:'Belgian yeasts can stall and restart at the same temperature — this is normal. Do not repitch. Confirm with two identical gravity readings 48 hours apart. Target FG: 1.010-1.014.'}
@@ -571,6 +607,22 @@ var DATA = [
 
 var cur = null, curVol = 20;
 
+function calcBrix(sg) {
+  // Balling formula: °Brix = 259 × (1 - 1/SG)
+  return Math.round(259 * (1 - 1/sg) * 10) / 10;
+}
+
+function updateCheckpoints(r, vol) {
+  var cube = cubeVol(vol);
+  var preboilVol = cube + 1.5 + 3.0;
+  var ogSG = parseFloat(r.vitals.og);
+  var ogPoints = (ogSG - 1) * 1000;
+  var preboilPoints = ogPoints * (vol / preboilVol);
+  var preboilSG = (1 + preboilPoints / 1000).toFixed(3);
+  document.getElementById('cpPreboil').textContent = preboilSG;
+  document.getElementById('cpOg').textContent = ogSG.toFixed(3);
+}
+
 function ebcToRgb(ebc) {
   var s = ebc * 0.508;
   return 'rgb(' + [
@@ -582,7 +634,11 @@ function ebcToRgb(ebc) {
 
 function fmtA(a, u, sc) {
   var v = a * sc;
-  if (u === 'g') return v >= 1000 ? (Math.round(v/100)/10).toFixed(1).replace(/\.0$/,'') + ' kg' : Math.round(v) + 'g';
+  if (u === 'g') {
+    if (v >= 1000) return (Math.round(v/100)/10).toFixed(1).replace(/\.0$/,'') + ' kg';
+    if (v < 1) return v.toFixed(1) + 'g';
+    return Math.round(v) + 'g';
+  }
   if (u === 'ml') return (Math.round(v*10)/10) + 'ml';
   if (u === 'tab') return (Math.round(v*4)/4) + ' tab';
   if (u === 'pkt') return Math.ceil(sc) + ' pkt';
@@ -649,6 +705,7 @@ function buildDetail(r, vol) {
   document.getElementById('dDesc').textContent = r.desc;
   document.getElementById('scVolDisplay').textContent = vol + 'L';
   updateCubeHint(vol);
+  updateCheckpoints(r, vol);
 
   var vd = document.getElementById('dVitals');
   vd.innerHTML = '';
@@ -727,6 +784,7 @@ function updateAmounts() {
     el.textContent = fmtA(parseFloat(el.dataset.base), el.dataset.unit, sc);
   });
   updateCubeHint(curVol);
+  updateCheckpoints(cur, curVol);
 }
 
 document.getElementById('backBtn').addEventListener('click', goHome);
